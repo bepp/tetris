@@ -66,17 +66,6 @@ function init() {
 
     /* 表示するブロックの初期化 */
     initDisplayBlock();
-    /*
-    display_block = new Array();
-    for(var i; i<MAP_WIDTH*MAP_HEIGHT; i++) {
-        display_block[i] = new Sprite(SIZE_X, SIZE_Y);
-        display_block[i].image = game.assets['map2.gif'];
-        display_block[i].x = (i % MAP_WIDTH) * SIZE_X + OFFSET_X;
-        display_block[i].y = Math.floor(i / MAP_WIDTH) * SIZE_Y + OFFSET_Y;
-        display_block[i].frame = 11;
-        scene_game.addChild(display_block[i]);
-    }
-    */
 
     /* ブロックの種類の作成 */
     createBlocks();
@@ -109,7 +98,7 @@ function checkState(frame_counter) {
     // 落ちているブロックが接地しているかのチェック->接地していればmapに反映&新しいブロックの作成及び配置
     if(check_block() == 1) {
         update_map();
-        update_display();
+        update_display(frame_counter);
         flag_create_block = 1;
     }
     if(flag_create_block == 1) {
@@ -125,9 +114,12 @@ function check_block() {
     if(pos_y == MAP_HEIGHT - 1) {
         return 1;
     }
-    else {
-        return 0;
+    else if(pos_y > 0 && pos_y < MAP_HEIGHT - 1) {
+        if(map[pos_x][pos_y+1] > 10) {
+            return 1;
+        }
     }
+    return 0;
 }
 
 function update_map() {
@@ -142,7 +134,7 @@ function update_display(frame_counter) {
     pre_pos_x = pos_x;
     pre_pos_y = pos_y;
     for(var x=0; x<MAP_WIDTH; x++) {
-        for(var y=0; y<MAP_WIDTH; y++) {
+        for(var y=0; y<MAP_HEIGHT; y++) {
             if(map[x][y] >　0 && map[x][y] < 10) {
                 scene_game.addChild(display_block[y*MAP_WIDTH+x]);
                 map[x][y] += 10;
@@ -157,22 +149,23 @@ function rotate(frame_counter) {
 
 function moveX(frame_counter) {
     // blockの横移動
-
-    if(game.input.right) {
-        if(pos_x < MAP_WIDTH - 1) {
-            pos_x++;
+    if(frame_counter % 2 == 0) {
+        if(game.input.right) {
+            if(pos_x < MAP_WIDTH - 1) {
+                pos_x++;
+            }
         }
-    }
-    else if(game.input.left) {
-        if(pos_x > 0) {
-            pos_x--;
+        else if(game.input.left) {
+            if(pos_x > 0) {
+                pos_x--;
+            }
         }
     }
 }
 
 function moveY(frame_counter) {
     // blockの縦移動
-    if(frame_counter == FPS - 1) {
+    if(frame_counter == FPS - 1 || frame_counter == Math.floor(FPS / 2)) {
         pos_y++;
     }
 }
@@ -266,11 +259,11 @@ function createBlock() {
 
 function createMap() {
     // map配列の作成
-    map = new Array(MAP_WIDTH);
-    for(var i=0; i<MAP_WIDTH; i++) {
-        map[i] = new Array(MAP_HEIGHT);
-        for(var j=0; j<MAP_HEIGHT; j++) {
-            map[i][j] = 0;
+    map = new Array();
+    for(var x=0; x<MAP_WIDTH; x++) {
+        map[x] = new Array();
+        for(var y=0; y<MAP_HEIGHT; y++) {
+            map[x][y] = 0;
         }
     }
 }
