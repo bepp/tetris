@@ -106,6 +106,7 @@ function checkState(frame_counter) {
         flag_create_block = 0;
     }
     // ラインがそろっているかチェック
+    delete_line();
     // GameOverのチェック
 }
 
@@ -125,6 +126,32 @@ function check_block() {
 function update_map() {
     // ブロックが設置している場合mapとblockを合体(?)させる
     map[pos_x][pos_y] = 1;
+}
+
+function delete_line() {
+    var flag_delete = 1;
+    for(var y=0; y<MAP_HEIGHT; y++) {
+        for(var x=0; x<MAP_WIDTH; x++) {
+            if(map[x][y] == 0) {
+                flag_delete = 0;
+            }
+        }
+        if(flag_delete == 1) {
+            if(y == 0) {
+                for(var i=0; i<MAP_WIDTH; i++) {
+                    map[i][y] = 0;
+                }
+            }
+            else {
+                for(var j=y; j>=0; j--) {
+                    for(var i=0; i<MAP_WIDTH; i++) {
+                        map[i][j] = map[i][j-1];    // 画面更新出来てない
+                    }
+                }
+            }
+        }
+        flag_delete = 1;
+    }
 }
 
 function update_display(frame_counter) {
@@ -152,12 +179,16 @@ function moveX(frame_counter) {
     if(frame_counter % 2 == 0) {
         if(game.input.right) {
             if(pos_x < MAP_WIDTH - 1) {
-                pos_x++;
+                if(map[pos_x+1][pos_y] == 0) {
+                    pos_x++;
+                }
             }
         }
         else if(game.input.left) {
             if(pos_x > 0) {
-                pos_x--;
+                if(map[pos_x-1][pos_y] == 0) {
+                    pos_x--;
+                }
             }
         }
     }
