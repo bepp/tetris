@@ -90,7 +90,7 @@ function init() {
 function main() {
     // ゲーム本体
     game_speed = 6;     // デバッグ用のスピード
-    checkState();
+    checkState(frame_counter);
     update_display(0);
     rotate(frame_counter);
     moveX(frame_counter);
@@ -102,23 +102,25 @@ function main() {
     }
 }
 /* 現在の状態をチェックする関数 */
-function checkState() {
+function checkState(frame_counter) {
     // 落ちているブロックが接地しているかのチェック->接地していればmapに反映&新しいブロックの作成及び配置
-    if(flag_create_block == 0) {    // 最初はflag_create_block=1だからスキップのため
-        if(check_block() == 1) {    // 最初はblockが設定されていないのでエラーが出る
-            update_map();
-            update_display(1);
-        flag_create_block = 1;
+    if(frame_counter == game_speed - 1 || frame_counter == Math.floor(game_speed / 2) || flag_create_block == 1) {
+        if(flag_create_block == 0) {    // 最初はflag_create_block=1だからスキップのため
+            if(check_block() == 1) {    // 最初はblockが設定されていないのでエラーが出る
+                update_map();
+                update_display(1);
+                flag_create_block = 1;
+            }
         }
+        if(flag_create_block == 1) {
+            createBlock();
+            flag_create_block = 0;
+        }
+        // ラインがそろっているかチェック
+        delete_line();
+        // GameOverのチェック
+        //checkGameOver();
     }
-    if(flag_create_block == 1) {
-        createBlock();
-        flag_create_block = 0;
-    }
-    // ラインがそろっているかチェック
-    delete_line();
-    // GameOverのチェック
-    //checkGameOver();
 }
 
 function check_block() {
