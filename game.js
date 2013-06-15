@@ -227,17 +227,54 @@ function moveX(frame_counter) {
     // blockの横移動
     if(frame_counter % 2 == 0) {
         if(game.input.right) {
+            /*
             if(pos_x < MAP_WIDTH - 1) {
                 if(map[pos_x+1][pos_y] == 0) {
                     pos_x++;
                 }
             }
+            */
+            var flag_right = 1;
+            for(var i=0; i<4; i++) {
+                for(var j=0; j<4; j++) {
+                    if(block[i][j] == 1) {
+                        if(pos_x + i == MAP_WIDTH - 1) {
+                            flag_right = 0;
+                        }
+                        else if(map[pos_x+i+1][pos_y+j] > 10) {
+                            flag_right = 0;
+                        }
+                    }
+                }
+            }
+            if(flag_right == 1) {
+                pos_x++;
+            }
+            
         }
         else if(game.input.left) {
+            /*
             if(pos_x > 0) {
                 if(map[pos_x-1][pos_y] == 0) {
                     pos_x--;
                 }
+            }
+            */
+            var flag_left = 1;
+            for(var i=0; i<4; i++) {
+                for(var j=0; j<4; j++) {
+                    if(block[i][j] == 1) {
+                        if(pos_x + i == 0) {
+                            flag_left = 0;
+                        }
+                        else if(map[pos_x+i-1][pos_y+j] > 10) {
+                            flag_left = 0;
+                        }
+                    }
+                }
+            }
+            if(flag_left == 1) {
+                pos_x--;
             }
         }
     }
