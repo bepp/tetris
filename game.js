@@ -386,14 +386,14 @@ function initDisplayBlock() {
 function createBlock() {
     // ブロックの作成
     // blocks配列の中からランダムで選べばいい？
-    block_type = Math.floor(Math.random()*(MAX_BLOCKS_TYPE-1));
+    block_type = Math.floor(Math.random()*(MAX_BLOCKS_TYPE));
     block = blocks[block_type];
-    if(block_type == 0) {
-        pos_x = 3;
-        pre_pos_x = 3;
-        pos_y = -1;
-        pre_pos_y = -1;
-    }
+    //if(block_type == 0) {
+    pos_x = 3;
+    pre_pos_x = 3;
+    pos_y = -1;
+    pre_pos_y = -1;
+    //}
     //scene_game.addChild(display_block[pos_y*MAP_WIDTH+pos_x]);
     addBlock(pos_x, pos_y);
 }
