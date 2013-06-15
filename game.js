@@ -118,6 +118,7 @@ function checkState() {
     // ラインがそろっているかチェック
     delete_line();
     // GameOverのチェック
+    //checkGameOver();
 }
 
 function check_block() {
@@ -168,27 +169,40 @@ function delete_line() {
             }
         }
         if(flag_delete == 1) {
+            /*
             if(y == 0) {
                 for(var i=0; i<MAP_WIDTH; i++) {
                     delete_array[i][j] = 1;
                     map[i][y] = 0;
                 }
             }
-            else {
-                for(var j=y; j>=0; j--) {
-                    for(var i=0; i<MAP_WIDTH; i++) {
-                        if(map[i][j] != map[i][j-1]) {
-                            map[i][j] = map[i][j-1];
-                            if(map[i][j] == 0) {
-                                delete_array[i][j] = 1;
-                            }
-                            else {
-                                delete_array[i][j] = 0;
+            */
+            //else {
+            for(var j=y; j>=0; j--) {
+                for(var i=0; i<MAP_WIDTH; i++) {
+                    if(j == 0) {
+                        if(map[i][j] != 0) {
+                            delete_array[i][j] = 1;
+                            map[i][j] = 0;
+                        }
+                    }
+                    else if(map[i][j] != map[i][j-1]) {
+                        if(map[i][j] == 0) {
+                            delete_array[i][j] = 3;
+                        }
+                        map[i][j] = map[i][j-1];
+                        if(map[i][j] == 0) {
+                            delete_array[i][j] = 1;
+                        }
+                        else {
+                            if(delete_array[i][j] != 3) {
+                                delete_array[i][j] = 2;
                             }
                         }
                     }
                 }
             }
+            //}
         }
         flag_delete = 1;
     }
@@ -209,6 +223,13 @@ function update_display(state) {
             if(delete_array[x][y] == 1) {
                 scene_game.removeChild(display_block[y*MAP_WIDTH+x]);
                 map[x][y] = 0;
+                delete_array[x][y] = 0;
+            }
+            else if(delete_array[x][y] == 2) {
+                delete_array[x][y] = 0;
+            }
+            else if(delete_array[x][y] == 3) {
+                scene_game.addChild(display_block[y*MAP_WIDTH+x]);
                 delete_array[x][y] = 0;
             }
             else if(map[x][y] >　0 && map[x][y] < 10) {
@@ -365,7 +386,7 @@ function initDisplayBlock() {
 function createBlock() {
     // ブロックの作成
     // blocks配列の中からランダムで選べばいい？
-    block_type = Math.floor(Math.random()*0);
+    block_type = Math.floor(Math.random()*(MAX_BLOCKS_TYPE-1));
     block = blocks[block_type];
     if(block_type == 0) {
         pos_x = 3;
