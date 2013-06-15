@@ -46,6 +46,10 @@ var pre_pos_x;
 var pre_pos_y;
 /* マップ */
 var map;
+/* 消去箇所保存配列 */
+var delete_array;
+/* ゲームスピード */
+var game_speed = FPS;
 
 function preloadAssets() {
     game = new Game(GAME_X, GAME_Y);
@@ -70,6 +74,9 @@ function init() {
     /* ブロックの種類の作成 */
     createBlocks();
 
+    /* 消去用配列作成 */
+    initDeleteArray();
+
     /* シーンのプッシュ */
     game.pushScene(scene_start);
 
@@ -82,14 +89,15 @@ function init() {
 
 function main() {
     // ゲーム本体
+    game_speed = 6;     // デバッグ用のスピード
     checkState(frame_counter);
-    update_display(frame_counter);
+    update_display(0);
     rotate(frame_counter);
     moveX(frame_counter);
     moveY(frame_counter);
 
     frame_counter++;
-    if(frame_counter == FPS) {
+    if(frame_counter == game_speed) {
         frame_counter = 0;
     }
 }
@@ -98,7 +106,7 @@ function checkState(frame_counter) {
     // 落ちているブロックが接地しているかのチェック->接地していればmapに反映&新しいブロックの作成及び配置
     if(check_block() == 1) {
         update_map();
-        update_display(frame_counter);
+        update_display(1);
         flag_create_block = 1;
     }
     if(flag_create_block == 1) {
@@ -139,13 +147,22 @@ function delete_line() {
         if(flag_delete == 1) {
             if(y == 0) {
                 for(var i=0; i<MAP_WIDTH; i++) {
+                    delete_array[i][j] = 1;
                     map[i][y] = 0;
                 }
             }
             else {
                 for(var j=y; j>=0; j--) {
                     for(var i=0; i<MAP_WIDTH; i++) {
-                        map[i][j] = map[i][j-1];    // 画面更新出来てない
+                        if(map[i][j] != map[i][j-1]) {
+                            map[i][j] = map[i][j-1];
+                            if(map[i][j] == 0) {
+                                delete_array[i][j] = 1;
+                            }
+                            else {
+                                delete_array[i][j] = 0;
+                            }
+                        }
                     }
                 }
             }
@@ -154,15 +171,22 @@ function delete_line() {
     }
 }
 
-function update_display(frame_counter) {
+function update_display(state) {
     // mapとblockの位置からディスプレイの更新
     scene_game.removeChild(display_block[pre_pos_y*MAP_WIDTH+pre_pos_x]);
-    scene_game.addChild(display_block[pos_y*MAP_WIDTH+pos_x]);
+    if(state == 0) {    // 設置時以外は現場所にadd、設置時はcreateBlockでaddするためスキップ
+        scene_game.addChild(display_block[pos_y*MAP_WIDTH+pos_x]);
+    }
     pre_pos_x = pos_x;
     pre_pos_y = pos_y;
     for(var x=0; x<MAP_WIDTH; x++) {
         for(var y=0; y<MAP_HEIGHT; y++) {
-            if(map[x][y] >　0 && map[x][y] < 10) {
+            if(delete_array[x][y] == 1) {
+                scene_game.removeChild(display_block[y*MAP_WIDTH+x]);
+                map[x][y] = 0;
+                delete_array[x][y] = 0;
+            }
+            else if(map[x][y] >　0 && map[x][y] < 10) {
                 scene_game.addChild(display_block[y*MAP_WIDTH+x]);
                 map[x][y] += 10;
             }
@@ -196,7 +220,7 @@ function moveX(frame_counter) {
 
 function moveY(frame_counter) {
     // blockの縦移動
-    if(frame_counter == FPS - 1 || frame_counter == Math.floor(FPS / 2)) {
+    if(frame_counter == game_speed - 1 || frame_counter == Math.floor(game_speed / 2)) {
         pos_y++;
     }
 }
@@ -295,6 +319,16 @@ function createMap() {
         map[x] = new Array();
         for(var y=0; y<MAP_HEIGHT; y++) {
             map[x][y] = 0;
+        }
+    }
+}
+
+function initDeleteArray() {
+    delete_array = new Array();
+    for(var x=0; x<MAP_WIDTH; x++) {
+        delete_array[x] = new Array();
+        for(var y=0; y<MAP_HEIGHT; y++) {
+            delete_array[x][y] = 0;
         }
     }
 }
